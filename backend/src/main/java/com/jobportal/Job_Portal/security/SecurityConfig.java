@@ -28,9 +28,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth ->auth
                 .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/employer/**").hasAuthority("EMPLOYER")
-                        .requestMatchers("/job_seeker/**").hasAuthority("JOB_SEEKER")
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/employer/**").hasAuthority("EMPLOYER")
+                        .requestMatchers("/api/job-seeker/**").hasAuthority("JOB_SEEKER")
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -46,6 +46,7 @@ public class JobSeekerProfile {
     @Column(name ="resume_url")
     private String resumeUrl;
 
+    @Column(nullable = false)
     private String location;
 
     @Column(name="created-at",updatable = false)
