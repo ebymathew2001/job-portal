@@ -2,9 +2,8 @@ package com.jobportal.Job_Portal.authentication;
 
 import com.jobportal.Job_Portal.authentication.dto.AuthenticationRequest;
 import com.jobportal.Job_Portal.authentication.dto.AuthenticationResponse;
-import com.jobportal.Job_Portal.authentication.AuthService;
-import com.jobportal.Job_Portal.user.User;
-import com.jobportal.Job_Portal.user.UserDTO;
+import com.jobportal.Job_Portal.user.UserRequestDTO;
+import com.jobportal.Job_Portal.user.UserResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +20,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user){
+    public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO requestDTO){
         try{
-            UserDTO userDTO= authService.registerUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
+            UserResponseDTO userResponseDTO = authService.registerUser(requestDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
         }
         catch (RuntimeException e){
-            return ResponseEntity.badRequest().body("Email is already registered");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     

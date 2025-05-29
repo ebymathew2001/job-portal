@@ -4,7 +4,8 @@ import com.jobportal.Job_Portal.authentication.dto.AuthenticationRequest;
 import com.jobportal.Job_Portal.authentication.dto.AuthenticationResponse;
 import com.jobportal.Job_Portal.security.jwt.JwtService;
 import com.jobportal.Job_Portal.user.User;
-import com.jobportal.Job_Portal.user.UserDTO;
+import com.jobportal.Job_Portal.user.UserRequestDTO;
+import com.jobportal.Job_Portal.user.UserResponseDTO;
 import com.jobportal.Job_Portal.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,16 +29,24 @@ public class AuthService {
     @Autowired
     private JwtService jwtService;
 
-    public UserDTO registerUser(User user){
-        if(userRepository.findByEmail(user.getEmail()) !=null){
+    public UserResponseDTO registerUser(UserRequestDTO requestDTO){
+        if(userRepository.findByEmail(requestDTO.getEmail()).isPresent()){
             throw new RuntimeException("Email already registered");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setProfileCompleted(false);
-        User savedUser=userRepository.save(user);
+        User user= new User();
+        user.setEmail(requestDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(requestDTO.getPassword()));
+        user.setRole(requestDTO.getRole());
 
-        return new UserDTO(savedUser);
+        userRepository.save(user);
+
+        UserResponseDTO responseDTO= new UserResponseDTO();
+        responseDTO.setRole(user.getRole().name());
+        responseDTO.setId(user.getId());
+        responseDTO.setEmail(user.getEmail());
+
+        return responseDTO;
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {

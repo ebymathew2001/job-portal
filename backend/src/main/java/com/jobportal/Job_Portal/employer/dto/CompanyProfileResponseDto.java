@@ -1,5 +1,6 @@
 package com.jobportal.Job_Portal.employer.dto;
 
+import com.jobportal.Job_Portal.user.UserResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,5 +21,7 @@ public class CompanyProfileResponseDto {
     private String location;
 
     private LocalDateTime updatedAt;
+
+    private UserResponseDTO user;
 
 }

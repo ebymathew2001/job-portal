@@ -27,8 +27,8 @@ public class CompanyProfileController {
     @PostMapping("profile/create")
     public ResponseEntity<CompanyProfileResponseDto> createProfile(@Valid @RequestBody CompanyProfileRequestDto requestDto ,Principal principal) {
 
-        String email=principal.getName();
-        CompanyProfileResponseDto responseDto = companyProfileService.createProfile(requestDto,email);
+
+        CompanyProfileResponseDto responseDto = companyProfileService.createProfile(requestDto,principal);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
