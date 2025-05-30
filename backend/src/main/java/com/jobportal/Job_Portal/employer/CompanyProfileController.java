@@ -5,10 +5,7 @@ import com.jobportal.Job_Portal.employer.dto.CompanyProfileResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -24,7 +21,7 @@ public class CompanyProfileController {
     }
 
 
-    @PostMapping("profile/create")
+    @PostMapping("profiles")
     public ResponseEntity<CompanyProfileResponseDto> createProfile(@Valid @RequestBody CompanyProfileRequestDto requestDto ,Principal principal) {
 
 
@@ -32,6 +29,14 @@ public class CompanyProfileController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
+
+    @GetMapping("profile/me")
+    public ResponseEntity<CompanyProfileResponseDto> viewProfile(Principal principal){
+        CompanyProfileResponseDto responseDto= companyProfileService.viewProfile(principal);
+        return ResponseEntity.ok(responseDto);
+    }
+
+
 
 
 

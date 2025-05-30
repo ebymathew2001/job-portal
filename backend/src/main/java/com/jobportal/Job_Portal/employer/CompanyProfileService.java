@@ -2,9 +2,11 @@ package com.jobportal.Job_Portal.employer;
 
 import com.jobportal.Job_Portal.employer.dto.CompanyProfileRequestDto;
 import com.jobportal.Job_Portal.employer.dto.CompanyProfileResponseDto;
+import com.jobportal.Job_Portal.exception.ResourceNotFoundException;
 import com.jobportal.Job_Portal.user.User;
 import com.jobportal.Job_Portal.user.UserRepository;
 import com.jobportal.Job_Portal.user.UserResponseDTO;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -56,4 +58,30 @@ public class CompanyProfileService {
         return responseDto;
 
     }
+
+    public CompanyProfileResponseDto viewProfile(Principal principal){
+        String email=principal.getName();
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(() ->new ResourceNotFoundException("User","email", email));
+        CompanyProfile profile=companyProfileRepository.findByUser(user).
+                orElseThrow(()-> new ResourceNotFoundException("CompanyProfile","user",user));
+
+        UserResponseDTO userDto=new UserResponseDTO();
+        userDto.setId(user.getId());
+        userDto.setRole(user.getRole().name());
+        userDto.setEmail(user.getEmail());
+
+        CompanyProfileResponseDto responseDto=new CompanyProfileResponseDto();
+        responseDto.setId(profile.getId());
+        responseDto.setCompanyName(profile.getCompanyName());
+        responseDto.setBio(profile.getBio());
+        responseDto.setLocation(profile.getLocation());
+        responseDto.setUpdatedAt(profile.getUpdatedAt());
+        responseDto.setUser(userDto);
+
+        return responseDto;
+
+    }
+
+
 }
