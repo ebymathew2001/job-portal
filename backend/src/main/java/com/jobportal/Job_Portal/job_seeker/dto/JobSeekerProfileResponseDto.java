@@ -1,5 +1,7 @@
 package com.jobportal.Job_Portal.job_seeker.dto;
 
+import com.jobportal.Job_Portal.user.User;
+import com.jobportal.Job_Portal.user.UserResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class JobSeekerResponseDto {
+public class JobSeekerProfileResponseDto {
 
     private Long id;
 
@@ -28,5 +30,7 @@ public class JobSeekerResponseDto {
     private String location;
 
     private LocalDateTime updatedAt;
+
+    private UserResponseDto user;
 
 }

@@ -2,8 +2,8 @@ package com.jobportal.Job_Portal.authentication;
 
 import com.jobportal.Job_Portal.authentication.dto.AuthenticationRequest;
 import com.jobportal.Job_Portal.authentication.dto.AuthenticationResponse;
-import com.jobportal.Job_Portal.user.UserRequestDTO;
-import com.jobportal.Job_Portal.user.UserResponseDTO;
+import com.jobportal.Job_Portal.user.UserRequestDto;
+import com.jobportal.Job_Portal.user.UserResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +20,9 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO requestDTO){
+    public ResponseEntity<?> registerUser(@RequestBody UserRequestDto requestDTO){
         try{
-            UserResponseDTO userResponseDTO = authService.registerUser(requestDTO);
+            UserResponseDto userResponseDTO = authService.registerUser(requestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
         }
         catch (RuntimeException e){

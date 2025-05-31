@@ -21,7 +21,7 @@ public class CompanyProfileController {
     }
 
 
-    @PostMapping("profiles")
+    @PostMapping("company-profiles")
     public ResponseEntity<CompanyProfileResponseDto> createProfile(@Valid @RequestBody CompanyProfileRequestDto requestDto ,Principal principal) {
 
 
@@ -30,11 +30,20 @@ public class CompanyProfileController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
-    @GetMapping("profile/me")
+    @GetMapping("company-profile/me")
     public ResponseEntity<CompanyProfileResponseDto> viewProfile(Principal principal){
         CompanyProfileResponseDto responseDto= companyProfileService.viewProfile(principal);
         return ResponseEntity.ok(responseDto);
     }
+
+
+    @PutMapping("company-profile/me")
+    public ResponseEntity<CompanyProfileResponseDto> updateProfile(@Valid @RequestBody CompanyProfileRequestDto requestDto,Principal principal){
+        CompanyProfileResponseDto responseDto=companyProfileService.updateProfile(requestDto,principal);
+        return ResponseEntity.ok(responseDto);
+    }
+
+
 
 
 

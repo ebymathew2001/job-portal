@@ -1,8 +1,14 @@
 package com.jobportal.Job_Portal.job_seeker.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public class JobSeekerRequestDto {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class JobSeekerProfileRequestDto {
 
     @NotBlank(message = "Full name is required")
     private String fullName;

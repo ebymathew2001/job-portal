@@ -5,8 +5,7 @@ import com.jobportal.Job_Portal.employer.dto.CompanyProfileResponseDto;
 import com.jobportal.Job_Portal.exception.ResourceNotFoundException;
 import com.jobportal.Job_Portal.user.User;
 import com.jobportal.Job_Portal.user.UserRepository;
-import com.jobportal.Job_Portal.user.UserResponseDTO;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import com.jobportal.Job_Portal.user.UserResponseDto;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +40,7 @@ public class CompanyProfileService {
 
         companyProfileRepository.save(companyProfile);
 
-        UserResponseDTO userDto = new UserResponseDTO();
+        UserResponseDto userDto = new UserResponseDto();
         userDto.setId(companyProfile.getUser().getId());
         userDto.setEmail(companyProfile.getUser().getEmail());
         userDto.setRole(companyProfile.getUser().getRole().name());
@@ -66,7 +65,7 @@ public class CompanyProfileService {
         CompanyProfile profile=companyProfileRepository.findByUser(user).
                 orElseThrow(()-> new ResourceNotFoundException("CompanyProfile","user",user));
 
-        UserResponseDTO userDto=new UserResponseDTO();
+        UserResponseDto userDto=new UserResponseDto();
         userDto.setId(user.getId());
         userDto.setRole(user.getRole().name());
         userDto.setEmail(user.getEmail());
@@ -77,6 +76,37 @@ public class CompanyProfileService {
         responseDto.setBio(profile.getBio());
         responseDto.setLocation(profile.getLocation());
         responseDto.setUpdatedAt(profile.getUpdatedAt());
+        responseDto.setUser(userDto);
+
+        return responseDto;
+
+    }
+
+    public CompanyProfileResponseDto updateProfile(CompanyProfileRequestDto requestDto,Principal principal){
+        String email=principal.getName();
+
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
+
+        CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
+
+        companyProfile.setCompanyName(requestDto.getCompanyName());
+        companyProfile.setBio(requestDto.getBio());
+        companyProfile.setLocation(requestDto.getLocation());
+
+        UserResponseDto userDto=new UserResponseDto();
+        userDto.setId(user.getId());
+        userDto.setEmail(user.getEmail());
+        userDto.setRole(user.getRole().name());
+
+        CompanyProfileResponseDto responseDto=new CompanyProfileResponseDto();
+
+        responseDto.setId(companyProfile.getId());
+        responseDto.setCompanyName(companyProfile.getCompanyName());
+        responseDto.setBio(companyProfile.getBio());
+        responseDto.setLocation(companyProfile.getLocation());
+        responseDto.setUpdatedAt(companyProfile.getUpdatedAt());
         responseDto.setUser(userDto);
 
         return responseDto;

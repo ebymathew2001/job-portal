@@ -1,13 +1,12 @@
 package com.jobportal.Job_Portal.user;
 
-import com.jobportal.Job_Portal.user.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class UserRequestDTO {
+public class UserRequestDto {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
