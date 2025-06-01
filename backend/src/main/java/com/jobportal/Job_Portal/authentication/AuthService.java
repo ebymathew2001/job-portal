@@ -7,27 +7,27 @@ import com.jobportal.Job_Portal.user.User;
 import com.jobportal.Job_Portal.user.UserRequestDto;
 import com.jobportal.Job_Portal.user.UserResponseDto;
 import com.jobportal.Job_Portal.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
+    
+    private final JwtService jwtService;
 
     public UserResponseDto registerUser(UserRequestDto requestDTO){
         if(userRepository.findByEmail(requestDTO.getEmail()).isPresent()){

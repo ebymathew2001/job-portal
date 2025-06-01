@@ -6,21 +6,20 @@ import com.jobportal.Job_Portal.exception.ResourceNotFoundException;
 import com.jobportal.Job_Portal.user.User;
 import com.jobportal.Job_Portal.user.UserRepository;
 import com.jobportal.Job_Portal.user.UserResponseDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 
 @Service
+@RequiredArgsConstructor
 public class CompanyProfileService {
 
-    private CompanyProfileRepository companyProfileRepository;
-    private UserRepository userRepository;
+    private final CompanyProfileRepository companyProfileRepository;
+    private final UserRepository userRepository;
 
-    public CompanyProfileService(CompanyProfileRepository companyProfileRepository,UserRepository userRepository){
-        this.companyProfileRepository=companyProfileRepository;
-        this.userRepository=userRepository;
-    }
+
 
 
     public CompanyProfileResponseDto createProfile(CompanyProfileRequestDto requestDto, Principal principal){

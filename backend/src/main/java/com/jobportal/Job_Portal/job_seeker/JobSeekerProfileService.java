@@ -6,21 +6,21 @@ import com.jobportal.Job_Portal.job_seeker.dto.JobSeekerProfileResponseDto;
 import com.jobportal.Job_Portal.user.User;
 import com.jobportal.Job_Portal.user.UserRepository;
 import com.jobportal.Job_Portal.user.UserResponseDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 
 @Service
+@RequiredArgsConstructor
 public class JobSeekerProfileService {
 
-    private JobSeekerProfileRepository jobSeekerProfileRepository;
 
-    private UserRepository userRepository;
+    private final JobSeekerProfileRepository jobSeekerProfileRepository;
 
-    public JobSeekerProfileService(JobSeekerProfileRepository jobSeekerProfileRepository,UserRepository userRepository){
-        this.jobSeekerProfileRepository=jobSeekerProfileRepository;
-        this.userRepository=userRepository;
-    }
+    private final UserRepository userRepository;
+
+
 
     public JobSeekerProfileResponseDto createProfile(JobSeekerProfileRequestDto requestDto, Principal principal){
         String email=principal.getName();

@@ -4,6 +4,7 @@ import com.jobportal.Job_Portal.authentication.dto.AuthenticationRequest;
 import com.jobportal.Job_Portal.authentication.dto.AuthenticationResponse;
 import com.jobportal.Job_Portal.user.UserRequestDto;
 import com.jobportal.Job_Portal.user.UserResponseDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+
+    private final AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRequestDto requestDTO){
