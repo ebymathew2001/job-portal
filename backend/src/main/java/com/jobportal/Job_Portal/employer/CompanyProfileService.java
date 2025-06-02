@@ -7,6 +7,7 @@ import com.jobportal.Job_Portal.user.User;
 import com.jobportal.Job_Portal.user.UserRepository;
 import com.jobportal.Job_Portal.user.UserResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,11 @@ import java.security.Principal;
 public class CompanyProfileService {
 
     private final CompanyProfileRepository companyProfileRepository;
+
     private final UserRepository userRepository;
+
+    private final ModelMapper modelMapper;
+
 
 
 
@@ -31,28 +36,15 @@ public class CompanyProfileService {
            throw new IllegalStateException("User already has a company profile");
         }
 
-        CompanyProfile companyProfile=new CompanyProfile();
-        companyProfile.setCompanyName(requestDto.getCompanyName());
-        companyProfile.setBio(requestDto.getBio());
-        companyProfile.setLocation(requestDto.getLocation());
+        CompanyProfile companyProfile= modelMapper.map(requestDto,CompanyProfile.class);
         companyProfile.setUser(user);
-
         companyProfileRepository.save(companyProfile);
 
-        UserResponseDto userDto = new UserResponseDto();
-        userDto.setId(companyProfile.getUser().getId());
-        userDto.setEmail(companyProfile.getUser().getEmail());
-        userDto.setRole(companyProfile.getUser().getRole().name());
+        UserResponseDto userResponseDto= modelMapper.map(user,UserResponseDto.class);
+        userResponseDto.setRole(user.getRole().name());
 
-        CompanyProfileResponseDto responseDto=new CompanyProfileResponseDto();
-
-        responseDto.setId(companyProfile.getId());
-        responseDto.setCompanyName(companyProfile.getCompanyName());
-        responseDto.setBio(companyProfile.getBio());
-        responseDto.setLocation(companyProfile.getLocation());
-        responseDto.setUpdatedAt(companyProfile.getUpdatedAt());
-        responseDto.setUser(userDto);
-
+        CompanyProfileResponseDto responseDto=modelMapper.map(companyProfile,CompanyProfileResponseDto.class);
+        responseDto.setUser(userResponseDto);
         return responseDto;
 
     }
@@ -61,23 +53,17 @@ public class CompanyProfileService {
         String email=principal.getName();
         User user=userRepository.findByEmail(email)
                 .orElseThrow(() ->new ResourceNotFoundException("User","email", email));
-        CompanyProfile profile=companyProfileRepository.findByUser(user).
+        CompanyProfile companyProfile=companyProfileRepository.findByUser(user).
                 orElseThrow(()-> new ResourceNotFoundException("CompanyProfile","user",user));
 
-        UserResponseDto userDto=new UserResponseDto();
-        userDto.setId(user.getId());
-        userDto.setRole(user.getRole().name());
-        userDto.setEmail(user.getEmail());
+        UserResponseDto userResponseDto= modelMapper.map(user,UserResponseDto.class);
+        userResponseDto.setRole(user.getRole().name());
 
-        CompanyProfileResponseDto responseDto=new CompanyProfileResponseDto();
-        responseDto.setId(profile.getId());
-        responseDto.setCompanyName(profile.getCompanyName());
-        responseDto.setBio(profile.getBio());
-        responseDto.setLocation(profile.getLocation());
-        responseDto.setUpdatedAt(profile.getUpdatedAt());
-        responseDto.setUser(userDto);
 
-        return responseDto;
+        CompanyProfileResponseDto companyProfileResponseDto=modelMapper.map(companyProfile,CompanyProfileResponseDto.class);
+        companyProfileResponseDto.setUser(userResponseDto);
+
+        return companyProfileResponseDto;
 
     }
 

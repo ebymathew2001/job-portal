@@ -12,9 +12,4 @@ public class JobPortalApplication {
 		SpringApplication.run(JobPortalApplication.class, args);
 	}
 
-	@Bean
-	public ModelMapper modelMapper() {
-		return new ModelMapper();
-	}
-
 }

@@ -8,6 +8,7 @@ import com.jobportal.Job_Portal.user.UserRequestDto;
 import com.jobportal.Job_Portal.user.UserResponseDto;
 import com.jobportal.Job_Portal.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,23 +30,18 @@ public class AuthService {
     
     private final JwtService jwtService;
 
+    private final ModelMapper modelMapper;
+
     public UserResponseDto registerUser(UserRequestDto requestDTO){
         if(userRepository.findByEmail(requestDTO.getEmail()).isPresent()){
             throw new RuntimeException("Email already registered");
         }
 
-        User user= new User();
-        user.setEmail(requestDTO.getEmail());
+        User user= modelMapper.map(requestDTO,User.class);
         user.setPassword(passwordEncoder.encode(requestDTO.getPassword()));
-        user.setRole(requestDTO.getRole());
-
         userRepository.save(user);
 
-        UserResponseDto responseDTO= new UserResponseDto();
-        responseDTO.setRole(user.getRole().name());
-        responseDTO.setId(user.getId());
-        responseDTO.setEmail(user.getEmail());
-
+        UserResponseDto responseDTO=modelMapper.map(user,UserResponseDto.class);
         return responseDTO;
     }
 
