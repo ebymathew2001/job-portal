@@ -7,9 +7,14 @@ import com.jobportal.Job_Portal.user.User;
 import com.jobportal.Job_Portal.user.UserRepository;
 import com.jobportal.Job_Portal.user.UserResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.security.Principal;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,10 +24,12 @@ public class JobSeekerProfileService {
     private final JobSeekerProfileRepository jobSeekerProfileRepository;
 
     private final UserRepository userRepository;
+    
+    private final ModelMapper modelMapper;
 
 
 
-    public JobSeekerProfileResponseDto createProfile(JobSeekerProfileRequestDto requestDto, Principal principal){
+    public JobSeekerProfileResponseDto createProfile(JobSeekerProfileRequestDto requestDto, MultipartFile resumeFile,Principal principal){
         String email=principal.getName();
         User user=userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
@@ -31,33 +38,33 @@ public class JobSeekerProfileService {
             throw new IllegalStateException("Job seeker profile already exists");
         }
 
-        JobSeekerProfile jobSeekerProfile=new JobSeekerProfile();
-        jobSeekerProfile.setFullName(requestDto.getFullName());
-        jobSeekerProfile.setBio(requestDto.getBio());
-        jobSeekerProfile.setSkills(requestDto.getSkills());
-        jobSeekerProfile.setExperience(requestDto.getExperience());
-        jobSeekerProfile.setEducation(requestDto.getEducation());
-        jobSeekerProfile.setResumeUrl(requestDto.getResumeUrl());
-        jobSeekerProfile.setLocation(requestDto.getLocation());
+        //save resume file to local storage
+        String uploadDir = "uploads/resumes/";
+        String originalFilename= resumeFile.getOriginalFilename();
+        String fileName = UUID.randomUUID() + "_" + originalFilename;
+
+        File uploadPath = new File(uploadDir);
+        if(!uploadPath.exists()){
+            uploadPath.mkdirs();
+        }
+
+        try{
+            resumeFile.transferTo(new File(uploadDir + fileName));
+        } catch (IOException e){
+            throw new RuntimeException("Failed to upload resume", e);
+        }
+
+        JobSeekerProfile jobSeekerProfile= modelMapper.map(requestDto,JobSeekerProfile.class);
         jobSeekerProfile.setUser(user);
+        jobSeekerProfile.setResumeUrl("/files/resumes/" + fileName);
 
         jobSeekerProfileRepository.save(jobSeekerProfile);
 
-        UserResponseDto userResponseDto=new UserResponseDto();
-        userResponseDto.setId(user.getId());
+        UserResponseDto userResponseDto=modelMapper.map(user,UserResponseDto.class);
         userResponseDto.setRole(user.getRole().name());
-        userResponseDto.setEmail(user.getEmail());
 
-        JobSeekerProfileResponseDto jobSeekerProfileResponseDto =new JobSeekerProfileResponseDto();
-        jobSeekerProfileResponseDto.setId(jobSeekerProfile.getId());
-        jobSeekerProfileResponseDto.setFullName(jobSeekerProfile.getFullName());
-        jobSeekerProfileResponseDto.setBio(jobSeekerProfile.getBio());
-        jobSeekerProfileResponseDto.setSkills(jobSeekerProfile.getSkills());
-        jobSeekerProfileResponseDto.setExperience(jobSeekerProfile.getExperience());
-        jobSeekerProfileResponseDto.setEducation(jobSeekerProfile.getEducation());
-        jobSeekerProfileResponseDto.setLocation(jobSeekerProfile.getLocation());
-        jobSeekerProfileResponseDto.setUpdatedAt(jobSeekerProfile.getUpdatedAt());
-        jobSeekerProfileResponseDto.setResumeUrl(jobSeekerProfile.getResumeUrl());
+
+        JobSeekerProfileResponseDto jobSeekerProfileResponseDto =modelMapper.map(jobSeekerProfile,JobSeekerProfileResponseDto.class);
         jobSeekerProfileResponseDto.setUser(userResponseDto);
         
         return jobSeekerProfileResponseDto;

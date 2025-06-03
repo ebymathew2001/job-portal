@@ -76,22 +76,13 @@ public class CompanyProfileService {
         CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
                 .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
 
-        companyProfile.setCompanyName(requestDto.getCompanyName());
-        companyProfile.setBio(requestDto.getBio());
-        companyProfile.setLocation(requestDto.getLocation());
+        modelMapper.map(requestDto,companyProfile);
 
-        UserResponseDto userDto=new UserResponseDto();
-        userDto.setId(user.getId());
-        userDto.setEmail(user.getEmail());
+
+        UserResponseDto userDto=modelMapper.map(user,UserResponseDto.class);
         userDto.setRole(user.getRole().name());
 
-        CompanyProfileResponseDto responseDto=new CompanyProfileResponseDto();
-
-        responseDto.setId(companyProfile.getId());
-        responseDto.setCompanyName(companyProfile.getCompanyName());
-        responseDto.setBio(companyProfile.getBio());
-        responseDto.setLocation(companyProfile.getLocation());
-        responseDto.setUpdatedAt(companyProfile.getUpdatedAt());
+        CompanyProfileResponseDto responseDto=modelMapper.map(companyProfile,CompanyProfileResponseDto.class);
         responseDto.setUser(userDto);
 
         return responseDto;
