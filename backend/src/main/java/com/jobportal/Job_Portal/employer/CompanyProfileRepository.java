@@ -12,4 +12,5 @@ public interface CompanyProfileRepository extends JpaRepository<CompanyProfile,L
     boolean existsByUser(User user);
 
     Optional<CompanyProfile> findByUser(User user);
+
 }
