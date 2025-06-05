@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobportal.Job_Portal.job_seeker.dto.JobSeekerProfileRequestDto;
 import com.jobportal.Job_Portal.job_seeker.dto.JobSeekerProfileResponseDto;
 import com.jobportal.Job_Portal.job_seeker.dto.ResumeDownloadResponseDto;
-import jakarta.annotation.Resource;
+import org.springframework.core.io.Resource;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,20 +34,7 @@ public class JobSeekerProfileController {
             @RequestParam("resume") MultipartFile resumeFile,
             Principal principal) throws JsonProcessingException {
 
-        if (profileJson == null || profileJson.trim().isEmpty()) {
-            throw new IllegalArgumentException("Profile data is required.");
-        }
-
-        if (resumeFile == null || resumeFile.isEmpty()) {
-            throw new IllegalArgumentException("Resume file is required.");
-        }
-
-        // Parse JSON string to DTO
-        ObjectMapper objectMapper = new ObjectMapper();
-        JobSeekerProfileRequestDto requestDto = objectMapper.readValue(profileJson, JobSeekerProfileRequestDto.class);
-
-        // Call service to handle business logic
-        JobSeekerProfileResponseDto responseDto = jobSeekerProfileService.createProfile(requestDto, resumeFile, principal);
+        JobSeekerProfileResponseDto responseDto = jobSeekerProfileService.createProfile(profileJson, resumeFile, principal);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
@@ -70,7 +58,16 @@ public class JobSeekerProfileController {
                 .body(download.getResource());
     }
 
+    @PutMapping("/jobseeker-profiles/me")
+    public ResponseEntity<JobSeekerProfileResponseDto> updateProfile(
+            @RequestParam("profile") String profileJson,
+            @RequestParam("resume") MultipartFile resumeFile,
+            Principal principal) throws JsonProcessingException {
+        JobSeekerProfileResponseDto responseDto = jobSeekerProfileService.updateProfile(profileJson, resumeFile, principal);
 
+        return ResponseEntity.ok().body(responseDto);
+
+    }
 
 
 }

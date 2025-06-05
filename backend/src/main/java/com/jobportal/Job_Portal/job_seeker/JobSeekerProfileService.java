@@ -1,5 +1,7 @@
 package com.jobportal.Job_Portal.job_seeker;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobportal.Job_Portal.exception.ProfileAlreadyExistsException;
 import com.jobportal.Job_Portal.exception.ResourceNotFoundException;
 import com.jobportal.Job_Portal.job_seeker.dto.JobSeekerProfileRequestDto;
@@ -8,7 +10,8 @@ import com.jobportal.Job_Portal.job_seeker.dto.ResumeDownloadResponseDto;
 import com.jobportal.Job_Portal.user.User;
 import com.jobportal.Job_Portal.user.UserRepository;
 import com.jobportal.Job_Portal.user.UserResponseDto;
-import jakarta.annotation.Resource;
+import org.springframework.core.io.Resource;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -35,7 +38,21 @@ public class JobSeekerProfileService {
 
 
 
-    public JobSeekerProfileResponseDto createProfile(JobSeekerProfileRequestDto requestDto, MultipartFile resumeFile,Principal principal){
+    public JobSeekerProfileResponseDto createProfile(String profileJson, MultipartFile resumeFile, Principal principal){
+        if (profileJson == null || profileJson.trim().isEmpty()) {
+            throw new IllegalArgumentException("Profile data is required.");
+        }
+        if (resumeFile == null || resumeFile.isEmpty()) {
+            throw new IllegalArgumentException("Resume file is required.");
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JobSeekerProfileRequestDto requestDto;
+        try {
+            requestDto = objectMapper.readValue(profileJson, JobSeekerProfileRequestDto.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Invalid profile JSON format.");
+        }
         String email=principal.getName();
         User user=userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
@@ -61,7 +78,6 @@ public class JobSeekerProfileService {
             // Save the resume file
             File destinationFile = new File(uploadPath, fileName);
             resumeFile.transferTo(destinationFile);
-            System.out.println("Resume saved at: " + destinationFile.getAbsolutePath());
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload resume: " + e.getMessage(), e);
         }
@@ -101,12 +117,19 @@ public class JobSeekerProfileService {
         return jobSeekerProfileResponseDto;
 
     }
-    public ResumeDownloadResponseDto getResumeForDownload(Principal principal, HttpServletRequest request) {
-        String email = principal.getName();
-        JobSeekerProfile profile = jobSeekerProfileRepository.findByUserEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("JobSeekerProfile", "userEmail", email));
 
-        String resumeFileName = profile.getResumeUrl().substring(profile.getResumeUrl().lastIndexOf("/") + 1);
+    public ResumeDownloadResponseDto getResumeForDownload(Principal principal, HttpServletRequest request) {
+
+        String email = principal.getName();
+
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
+
+        JobSeekerProfile jobSeekerProfile= jobSeekerProfileRepository.findByUser(user)
+                .orElseThrow(()-> new ResourceNotFoundException("JobSeekerProfile","user",user));
+
+        String resumeFileName = jobSeekerProfile.getResumeUrl().substring(jobSeekerProfile.getResumeUrl().lastIndexOf("/") + 1);
         File file = new File("D:/spring projects/Job-Portal/backend/uploads/resumes/", resumeFileName);
 
         if (!file.exists()) {
@@ -120,16 +143,63 @@ public class JobSeekerProfileService {
         return new ResumeDownloadResponseDto(resource, file.getName(), contentType);
     }
 
+    public JobSeekerProfileResponseDto updateProfile(String profileJson, MultipartFile resumeFile, Principal principal){
+        if (profileJson == null || profileJson.trim().isEmpty()) {
+            throw new IllegalArgumentException("Profile data is required.");
+        }
+        if (resumeFile == null || resumeFile.isEmpty()) {
+            throw new IllegalArgumentException("Resume file is required.");
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JobSeekerProfileRequestDto requestDto;
+        try {
+            requestDto = objectMapper.readValue(profileJson, JobSeekerProfileRequestDto.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Invalid profile JSON format.");
+        }
+        String email=principal.getName();
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
+
+        JobSeekerProfile jobSeekerProfile=jobSeekerProfileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("JobSeekerProfile","user",user));
+
+        //save resume file to local storage
+        String uploadDir = "D:/spring projects/Job-Portal/backend/uploads/resumes/";
+        String originalFilename= resumeFile.getOriginalFilename();
+        String fileName = UUID.randomUUID() + "_" + originalFilename;
+
+        File uploadPath = new File(uploadDir);
+        if (!uploadPath.exists()) {
+            boolean created = uploadPath.mkdirs();
+            if (!created) {
+                throw new RuntimeException("Failed to create upload directory: " + uploadPath.getAbsolutePath());
+            }
+        }
+
+        try {
+            // Save the resume file
+            File destinationFile = new File(uploadPath, fileName);
+            resumeFile.transferTo(destinationFile);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload resume: " + e.getMessage(), e);
+        }
+
+        modelMapper.map(requestDto,jobSeekerProfile);
+        jobSeekerProfile.setUser(user);
+        jobSeekerProfile.setResumeUrl("/files/resumes/" + fileName);
+
+        jobSeekerProfileRepository.save(jobSeekerProfile);
+
+        UserResponseDto userResponseDto=modelMapper.map(user,UserResponseDto.class);
+        userResponseDto.setRole(user.getRole().name());
 
 
+        JobSeekerProfileResponseDto jobSeekerProfileResponseDto =modelMapper.map(jobSeekerProfile,JobSeekerProfileResponseDto.class);
+        jobSeekerProfileResponseDto.setUser(userResponseDto);
 
-
-    //for downloading resume
-
-
-
-
-
-
+        return jobSeekerProfileResponseDto;
+    }
 
 }

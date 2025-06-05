@@ -1,6 +1,6 @@
 package com.jobportal.Job_Portal.job_seeker.dto;
 
-import jakarta.annotation.Resource;
+import org.springframework.core.io.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
