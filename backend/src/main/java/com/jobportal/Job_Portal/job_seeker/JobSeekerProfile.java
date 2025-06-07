@@ -49,7 +49,7 @@ public class JobSeekerProfile {
     @Column(nullable = false)
     private String location;
 
-    @Column(name="created-at",updatable = false)
+    @Column(name="created_at",updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
