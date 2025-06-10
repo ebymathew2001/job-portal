@@ -7,6 +7,7 @@ import com.jobportal.Job_Portal.exception.ResourceNotFoundException;
 import com.jobportal.Job_Portal.jobs.dto.JobRequestDto;
 import com.jobportal.Job_Portal.jobs.dto.JobResponseDto;
 import com.jobportal.Job_Portal.jobs.dto.JobStatusUpdateDTO;
+import com.jobportal.Job_Portal.jobs.dto.JobSummaryDto;
 import com.jobportal.Job_Portal.user.User;
 import com.jobportal.Job_Portal.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +54,7 @@ public class JobService {
 
     }
 
+
     public JobResponseDto updateJob(Long id,JobRequestDto jobRequestDto,Principal principal){
         String email=principal.getName();
 
@@ -81,11 +85,13 @@ public class JobService {
         return jobResponseDto;
     }
 
+
+
     public JobResponseDto updateStatus(Long id, JobStatusUpdateDTO jobStatusUpdateDTO,Principal principal){
         String email=principal.getName();
 
         User user=userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User","email",email);
+                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
 
         CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
                 .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
@@ -104,8 +110,7 @@ public class JobService {
         job.setJobStatus(jobStatusUpdateDTO.getJobStatus());
         jobRepository.save(job);
 
-        CompanySummaryDto companySummaryDto=modelMapper.map(job,CompanySummaryDto.class);
-
+        CompanySummaryDto companySummaryDto=modelMapper.map(companyProfile,CompanySummaryDto.class);
         JobResponseDto jobResponseDto=modelMapper.map(job,JobResponseDto.class);
         jobResponseDto.setCompany(companySummaryDto);
 
@@ -114,6 +119,73 @@ public class JobService {
 
 
 
+    public List<JobSummaryDto> getAllActiveJobSummaries(){
+        List<Job> activeJobs = jobRepository.findByJobStatus(JobStatus.ACTIVE);
+
+        List<JobSummaryDto> dtoList= new ArrayList<>();
+
+        for(Job job: activeJobs) {
+            JobSummaryDto jobSummaryDto = new JobSummaryDto();
+            jobSummaryDto.setId(job.getId());
+            jobSummaryDto.setTitle(job.getTitle());
+            jobSummaryDto.setLocation(job.getCompanyProfile().getLocation());
+            jobSummaryDto.setJobType(job.getJobType().name());
+            jobSummaryDto.setWorkMode(job.getWorkMode().name());
+            jobSummaryDto.setCompanyName(job.getCompanyProfile().getCompanyName());
+
+            dtoList.add(jobSummaryDto);
+        }
+        return dtoList;
+        }
+
+
+
+        public JobResponseDto getJobById(Long id){
+        Job job=jobRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job","id",id));
+
+        JobResponseDto jobResponseDto=modelMapper.map(job,JobResponseDto.class);
+
+        CompanySummaryDto companySummaryDto=modelMapper.map(job.getCompanyProfile(),CompanySummaryDto.class);
+        
+        jobResponseDto.setCompany(companySummaryDto);
+
+        return jobResponseDto;
+
+        }
+
+        public List<JobSummaryDto> getJobsByEmployer(Principal principal){
+
+        String email=principal.getName();
+
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
+        CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
+
+        List<Job> jobs=jobRepository.findByCompanyProfile(companyProfile);
+
+        List<JobSummaryDto> jobSummaryDtoList=new ArrayList<>();
+
+        for(Job job: jobs){
+            JobSummaryDto jobSummaryDto=new JobSummaryDto();
+            jobSummaryDto.setId(job.getId());
+            jobSummaryDto.setTitle(job.getTitle());
+            jobSummaryDto.setLocation(job.getCompanyProfile().getLocation());
+            jobSummaryDto.setJobType(job.getJobType().name());
+            jobSummaryDto.setWorkMode(job.getWorkMode().name());
+            jobSummaryDto.setCompanyName(job.getCompanyProfile().getCompanyName());
+
+            jobSummaryDtoList.add(jobSummaryDto);
+
+        }
+
+        return jobSummaryDtoList;
+
+        }
+
+    }
+    
 
 
 
@@ -127,4 +199,8 @@ public class JobService {
 
 
 
-}
+
+
+
+
+
