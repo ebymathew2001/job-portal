@@ -11,7 +11,4 @@ import lombok.NoArgsConstructor;
 public class ApplicationRequestDto {
     @NotNull(message = "Job ID is required")
     private Long jobId;
-
-    @NotNull(message = "Job seeker ID is required")
-    private Long jobSeekerId;
 }

@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class JobController {
 
-    private JobService jobService;
+    private final JobService jobService;
 
     @PostMapping("/employer/jobs")
     public ResponseEntity<JobResponseDto> createJob(@Valid @RequestBody JobRequestDto jobRequestDto, Principal principal){
@@ -64,6 +64,17 @@ public class JobController {
 
         return ResponseEntity.ok(jobSummaryDto);
     }
+
+    @DeleteMapping("/employer/jobs/{id}")
+    public ResponseEntity<String> deleteJob(@PathVariable Long id,Principal principal){
+        jobService.deleteJob(id,principal);
+        return ResponseEntity.ok("Job deleted successfully");
+    }
+
+
+
+
+
 
 
 

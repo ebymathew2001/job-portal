@@ -23,31 +23,31 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class JobService {
-    
-    private JobRepository jobRepository;
 
-    private UserRepository userRepository;
+    private final JobRepository jobRepository;
 
-    private ModelMapper modelMapper;
+    private final UserRepository userRepository;
 
-    private CompanyProfileRepository companyProfileRepository;
+    private final ModelMapper modelMapper;
+
+    private final CompanyProfileRepository companyProfileRepository;
 
 
-    public JobResponseDto createJob(JobRequestDto jobRequestDto, Principal principal){
-        String email=principal.getName();
-        User user=userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
-        CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
+    public JobResponseDto createJob(JobRequestDto jobRequestDto, Principal principal) {
+        String email = principal.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        CompanyProfile companyProfile = companyProfileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile", "user", user));
 
-        Job job=modelMapper.map(jobRequestDto,Job.class);
+        Job job = modelMapper.map(jobRequestDto, Job.class);
         job.setJobStatus(JobStatus.ACTIVE);
         job.setCompanyProfile(companyProfile);
         jobRepository.save(job);
 
-        CompanySummaryDto companySummaryDto=modelMapper.map(companyProfile,CompanySummaryDto.class);
+        CompanySummaryDto companySummaryDto = modelMapper.map(companyProfile, CompanySummaryDto.class);
 
-        JobResponseDto jobResponseDto=modelMapper.map(job,JobResponseDto.class);
+        JobResponseDto jobResponseDto = modelMapper.map(job, JobResponseDto.class);
         jobResponseDto.setCompany(companySummaryDto);
 
         return jobResponseDto;
@@ -55,76 +55,74 @@ public class JobService {
     }
 
 
-    public JobResponseDto updateJob(Long id,JobRequestDto jobRequestDto,Principal principal){
-        String email=principal.getName();
+    public JobResponseDto updateJob(Long id, JobRequestDto jobRequestDto, Principal principal) {
+        String email = principal.getName();
 
-        User user=userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
 
-        CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
+        CompanyProfile companyProfile = companyProfileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile", "user", user));
 
-        Job job= jobRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job","id",id));
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job", "id", id));
 
-        Long jobOwnerId= job.getCompanyProfile().getId();
-        Long currentLoggedUserCompanyId=companyProfile.getId();
+        Long jobOwnerId = job.getCompanyProfile().getId();
+        Long currentLoggedUserCompanyId = companyProfile.getId();
 
-        if(!jobOwnerId.equals(currentLoggedUserCompanyId)){
+        if (!jobOwnerId.equals(currentLoggedUserCompanyId)) {
             throw new AccessDeniedException("You are not authorized to update this job");
         }
-        modelMapper.map(jobRequestDto,job);
+        modelMapper.map(jobRequestDto, job);
         job.setCompanyProfile(companyProfile);
         jobRepository.save(job);
 
-        CompanySummaryDto companySummaryDto=modelMapper.map(companyProfile,CompanySummaryDto.class);
+        CompanySummaryDto companySummaryDto = modelMapper.map(companyProfile, CompanySummaryDto.class);
 
-        JobResponseDto jobResponseDto=modelMapper.map(job,JobResponseDto.class);
+        JobResponseDto jobResponseDto = modelMapper.map(job, JobResponseDto.class);
         jobResponseDto.setCompany(companySummaryDto);
 
         return jobResponseDto;
     }
 
 
+    public JobResponseDto updateStatus(Long id, JobStatusUpdateDTO jobStatusUpdateDTO, Principal principal) {
+        String email = principal.getName();
 
-    public JobResponseDto updateStatus(Long id, JobStatusUpdateDTO jobStatusUpdateDTO,Principal principal){
-        String email=principal.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
 
-        User user=userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
+        CompanyProfile companyProfile = companyProfileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile", "user", user));
 
-        CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job", "id", id));
 
-        Job job=jobRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Job","id",id) );
+        Long jobOwnerId = job.getCompanyProfile().getId();
 
-        Long jobOwnerId=job.getCompanyProfile().getId();
+        Long currentLoggedUserCompany = companyProfile.getId();
 
-        Long currentLoggedUserCompany=companyProfile.getId();
-
-        if(!jobOwnerId.equals(currentLoggedUserCompany)){
+        if (!jobOwnerId.equals(currentLoggedUserCompany)) {
             throw new AccessDeniedException("You are not authorized to update the job");
         }
 
         job.setJobStatus(jobStatusUpdateDTO.getJobStatus());
         jobRepository.save(job);
 
-        CompanySummaryDto companySummaryDto=modelMapper.map(companyProfile,CompanySummaryDto.class);
-        JobResponseDto jobResponseDto=modelMapper.map(job,JobResponseDto.class);
+        CompanySummaryDto companySummaryDto = modelMapper.map(companyProfile, CompanySummaryDto.class);
+        JobResponseDto jobResponseDto = modelMapper.map(job, JobResponseDto.class);
         jobResponseDto.setCompany(companySummaryDto);
 
         return jobResponseDto;
     }
 
 
-
-    public List<JobSummaryDto> getAllActiveJobSummaries(){
+    public List<JobSummaryDto> getAllActiveJobSummaries() {
         List<Job> activeJobs = jobRepository.findByJobStatus(JobStatus.ACTIVE);
 
-        List<JobSummaryDto> dtoList= new ArrayList<>();
+        List<JobSummaryDto> dtoList = new ArrayList<>();
 
-        for(Job job: activeJobs) {
+        for (Job job : activeJobs) {
             JobSummaryDto jobSummaryDto = new JobSummaryDto();
             jobSummaryDto.setId(job.getId());
             jobSummaryDto.setTitle(job.getTitle());
@@ -136,39 +134,38 @@ public class JobService {
             dtoList.add(jobSummaryDto);
         }
         return dtoList;
-        }
+    }
 
 
+    public JobResponseDto getJobById(Long id) {
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job", "id", id));
 
-        public JobResponseDto getJobById(Long id){
-        Job job=jobRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job","id",id));
+        JobResponseDto jobResponseDto = modelMapper.map(job, JobResponseDto.class);
 
-        JobResponseDto jobResponseDto=modelMapper.map(job,JobResponseDto.class);
+        CompanySummaryDto companySummaryDto = modelMapper.map(job.getCompanyProfile(), CompanySummaryDto.class);
 
-        CompanySummaryDto companySummaryDto=modelMapper.map(job.getCompanyProfile(),CompanySummaryDto.class);
-        
         jobResponseDto.setCompany(companySummaryDto);
 
         return jobResponseDto;
 
-        }
+    }
 
-        public List<JobSummaryDto> getJobsByEmployer(Principal principal){
+    public List<JobSummaryDto> getJobsByEmployer(Principal principal) {
 
-        String email=principal.getName();
+        String email = principal.getName();
 
-        User user=userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
-        CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        CompanyProfile companyProfile = companyProfileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile", "user", user));
 
-        List<Job> jobs=jobRepository.findByCompanyProfile(companyProfile);
+        List<Job> jobs = jobRepository.findByCompanyProfile(companyProfile);
 
-        List<JobSummaryDto> jobSummaryDtoList=new ArrayList<>();
+        List<JobSummaryDto> jobSummaryDtoList = new ArrayList<>();
 
-        for(Job job: jobs){
-            JobSummaryDto jobSummaryDto=new JobSummaryDto();
+        for (Job job : jobs) {
+            JobSummaryDto jobSummaryDto = new JobSummaryDto();
             jobSummaryDto.setId(job.getId());
             jobSummaryDto.setTitle(job.getTitle());
             jobSummaryDto.setLocation(job.getCompanyProfile().getLocation());
@@ -182,12 +179,31 @@ public class JobService {
 
         return jobSummaryDtoList;
 
-        }
-
     }
-    
 
 
+    public void deleteJob(Long id, Principal principal){
+        String email=principal.getName();
+
+        User user =userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
+
+        CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
+
+        Job job= jobRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job","id",id));
+
+        if(!job.getCompanyProfile().getId().equals(companyProfile.getId())){
+            throw new AccessDeniedException("you can only delete your own jobs");
+        }
+        jobRepository.deleteById(id);
+    }
+
+
+
+
+}
 
 
 
