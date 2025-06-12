@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApplicationRequestDto {
+public class ApplicationCreateRequestDto {
     @NotNull(message = "Job ID is required")
     private Long jobId;
 }
