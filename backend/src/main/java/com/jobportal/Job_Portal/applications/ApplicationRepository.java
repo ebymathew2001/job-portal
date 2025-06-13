@@ -6,10 +6,14 @@ import com.jobportal.Job_Portal.jobs.Job;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application,Long> {
 
-    boolean ExistByJobSeeker(Job job, JobSeekerProfile jobSeekerProfile);
+    boolean existByJobSeeker(Job job, JobSeekerProfile jobSeekerProfile);
 
+    List<Application> findByJobSeeker(JobSeekerProfile jobSeekerProfile);
 
+    List<Application> findByJob(Job job);
 }

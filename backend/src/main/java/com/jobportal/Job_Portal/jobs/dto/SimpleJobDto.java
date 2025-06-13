@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class SimpleJobDto {
     private Long id;
     private String title;
-    private String location;
+    private String companyName;
 }

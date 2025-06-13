@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SimpleJobSeekerDto {
-    private Long id;
+
     private String fullName;
-    private String location;
+    private String resumeUrl;
+
 }
