@@ -48,7 +48,7 @@ public class JobSeekerProfileController {
     }
 
     @GetMapping("/jobseeker-profiles/resume")
-    @PreAuthorize("hasRole('JOB_SEEKER')")
+    @PreAuthorize("hasAuthority('JOB_SEEKER')")
     public ResponseEntity<Resource> downloadResume(Principal principal, HttpServletRequest request) {
         ResumeDownloadResponseDto download = jobSeekerProfileService.getResumeForDownload(principal, request);
 

@@ -151,6 +151,36 @@ public class JobService {
 
     }
 
+    public List<JobSummaryDto> getActiveJobsByEmployer(Principal principal) {
+
+        String email = principal.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+
+        CompanyProfile companyProfile = companyProfileRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile", "user", user));
+
+        List<Job> jobs = jobRepository.findByCompanyProfileAndJobStatus(companyProfile, JobStatus.ACTIVE);
+
+        List<JobSummaryDto> jobSummaryDtoList = new ArrayList<>();
+
+        for (Job job : jobs) {
+            JobSummaryDto jobSummaryDto = new JobSummaryDto();
+            jobSummaryDto.setId(job.getId());
+            jobSummaryDto.setTitle(job.getTitle());
+            jobSummaryDto.setLocation(job.getCompanyProfile().getLocation());
+            jobSummaryDto.setJobType(job.getJobType().name());
+            jobSummaryDto.setWorkMode(job.getWorkMode().name());
+            jobSummaryDto.setCompanyName(job.getCompanyProfile().getCompanyName());
+
+            jobSummaryDtoList.add(jobSummaryDto);
+        }
+
+        return jobSummaryDtoList;
+    }
+
+
     public List<JobSummaryDto> getJobsByEmployer(Principal principal) {
 
         String email = principal.getName();
@@ -180,26 +210,6 @@ public class JobService {
         return jobSummaryDtoList;
 
     }
-
-
-    public void deleteJob(Long id, Principal principal){
-        String email=principal.getName();
-
-        User user =userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User","email",email));
-
-        CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("CompanyProfile","user",user));
-
-        Job job= jobRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job","id",id));
-
-        if(!job.getCompanyProfile().getId().equals(companyProfile.getId())){
-            throw new AccessDeniedException("you can only delete your own jobs");
-        }
-        jobRepository.deleteById(id);
-    }
-
 
 
 

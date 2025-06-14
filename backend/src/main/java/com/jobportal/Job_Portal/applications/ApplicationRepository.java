@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application,Long> {
 
-    boolean existByJobSeeker(Job job, JobSeekerProfile jobSeekerProfile);
+    boolean existsByJobAndJobSeeker(Job job, JobSeekerProfile jobSeekerProfile);
 
     List<Application> findByJobSeeker(JobSeekerProfile jobSeekerProfile);
 

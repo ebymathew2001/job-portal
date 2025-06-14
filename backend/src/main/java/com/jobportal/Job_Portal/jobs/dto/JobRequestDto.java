@@ -4,6 +4,7 @@ import com.jobportal.Job_Portal.jobs.JobType;
 import com.jobportal.Job_Portal.jobs.WorkMode;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,10 +22,10 @@ public class JobRequestDto {
     @NotBlank(message = "Description is needed")
     private String description;
 
-    @NotBlank(message = "Job-type is needed")
+    @NotNull(message = "Job-type is needed")
     private JobType jobType;
 
-    @NotBlank(message = "WorkMode is needed")
+    @NotNull(message = "WorkMode is needed")
     private WorkMode workMode;
 
     private String salary;

@@ -43,12 +43,16 @@ public class Job {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name="job-status",nullable = false)
+    @Column(name="job_status",nullable = false)
     @Enumerated(EnumType.STRING)
     private JobStatus jobStatus;
+
 
     @ManyToOne
     @JoinColumn(name = "company_profile_id",nullable = false)
     private CompanyProfile companyProfile;
+
+
+
 
 }

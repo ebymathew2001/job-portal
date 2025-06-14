@@ -18,7 +18,6 @@ public class JobResponseDto {
 
     private String description;
 
-    private String location;
 
     private String jobType;
 

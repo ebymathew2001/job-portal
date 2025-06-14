@@ -43,7 +43,7 @@ public class JobController {
         return ResponseEntity.ok(jobResponseDto);
     }
 
-    @PreAuthorize("hasAnyRole('EMPLOYER','JOBSEEKER','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYER','JOBSEEKER','ADMIN')")
     @GetMapping("/jobs")
     public ResponseEntity<List<JobSummaryDto>> getAllActiveJobs() {
         List<JobSummaryDto> activeJobs = jobService.getAllActiveJobSummaries();
@@ -51,12 +51,19 @@ public class JobController {
     }
 
 
-    @PreAuthorize("hasAnyRole('EMPLOYER','JOBSEEKER','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('EMPLOYER','JOBSEEKER','ADMIN')")
     @GetMapping("/jobs/{id}")
     public ResponseEntity<JobResponseDto> getJobById(@PathVariable Long id){
         JobResponseDto jobResponseDto=jobService.getJobById(id);
         return ResponseEntity.ok(jobResponseDto);
     }
+
+    @GetMapping("/employer/jobs/active")
+    public ResponseEntity<List<JobSummaryDto>> getActiveJobsByEmployer(Principal principal) {
+        List<JobSummaryDto> jobSummaryDto = jobService.getActiveJobsByEmployer(principal);
+        return ResponseEntity.ok(jobSummaryDto);
+    }
+
 
     @GetMapping("/employer/jobs")
     public ResponseEntity<List<JobSummaryDto>> getJobsByEmployer(Principal principal){
@@ -64,24 +71,6 @@ public class JobController {
 
         return ResponseEntity.ok(jobSummaryDto);
     }
-
-    @DeleteMapping("/employer/jobs/{id}")
-    public ResponseEntity<String> deleteJob(@PathVariable Long id,Principal principal){
-        jobService.deleteJob(id,principal);
-        return ResponseEntity.ok("Job deleted successfully");
-    }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

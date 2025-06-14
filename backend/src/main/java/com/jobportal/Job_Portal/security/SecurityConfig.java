@@ -33,7 +33,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/employer/**").hasAuthority("EMPLOYER")
                         .requestMatchers("/api/job-seeker/**").hasAuthority("JOB_SEEKER")
-                .anyRequest().authenticated())
+                        .requestMatchers("/api/jobs/**").hasAnyAuthority("EMPLOYER", "JOBSEEKER", "ADMIN")
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )

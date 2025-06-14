@@ -54,7 +54,7 @@ public class ApplicationService {
                 .orElseThrow(() -> new ResourceNotFoundException("JobSeekerProfile","user",user));
 
 
-        if(applicationRepository.existByJobSeeker(job,jobSeekerProfile)){
+        if(applicationRepository.existsByJobAndJobSeeker(job,jobSeekerProfile)){
             throw new RuntimeException("You have already applied for this job");
         }
 
@@ -70,6 +70,7 @@ public class ApplicationService {
         return applicationResponseDto;
 
     }
+
 
     public List<ApplicationSummaryDto> getMyApplications(Principal principal){
         String email=principal.getName();
@@ -99,6 +100,7 @@ public class ApplicationService {
         return applicationSummaryDtoList;
 
     }
+
 
     public List<EmployerApplicationSummaryDto> getApplicationsForJob(Long jobId, Principal principal) {
         String email = principal.getName();
@@ -132,6 +134,7 @@ public class ApplicationService {
 
         return dtoList;
     }
+
 
     public JobSeekerApplicationDetailsDto getApplicationDetailsById(Long id,Principal principal){
         String email=principal.getName();
