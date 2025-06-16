@@ -195,6 +195,44 @@ public class ApplicationService {
 
     }
 
+    public StatusUpdateResponseDto updateStatus(Long jobId,Long applicationId,Principal principal,ApplicationStatusUpdateRequestDto applicationStatusUpdateRequestDto){
+
+        String email= principal.getName();
+
+        User user=userRepository.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("User","email",email));
+
+        CompanyProfile companyProfile=companyProfileRepository.findByUser(user)
+                .orElseThrow(()-> new ResourceNotFoundException("CompanyProfile","user",user));
+
+        Job job=jobRepository.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job","jobId",jobId));
+
+        Application application=applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application","applicationId",applicationId));
+
+
+        if(!job.getCompanyProfile().getId().equals(companyProfile.getId())){
+            throw  new IllegalArgumentException("This job is not belongs to you");
+        }
+
+        String oldStatus= application.getStatus().name();
+
+        application.setStatus(applicationStatusUpdateRequestDto.getStatus());
+
+        applicationRepository.save(application);
+
+        StatusUpdateResponseDto statusUpdateResponseDto=new StatusUpdateResponseDto();
+        statusUpdateResponseDto.setApplicationId(applicationId);
+        statusUpdateResponseDto.setOldStatus(oldStatus);
+        statusUpdateResponseDto.setNewStatus(application.getStatus().name());
+        statusUpdateResponseDto.setMessage("Status Successfully updated");
+
+        return statusUpdateResponseDto;
+
+    }
+
+
 
 
 

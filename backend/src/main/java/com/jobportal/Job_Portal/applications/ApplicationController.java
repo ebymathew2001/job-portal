@@ -64,6 +64,17 @@ public class ApplicationController {
     }
 
 
+    @PatchMapping("/employer/jobs/{jobId}/applications/{applicationId}")
+    public ResponseEntity<StatusUpdateResponseDto> updateStatus(@PathVariable Long jobId,
+                    @PathVariable Long applicationId,
+                    @RequestBody ApplicationStatusUpdateRequestDto applicationStatusUpdateRequestDto
+                    ,Principal principal){
+
+        StatusUpdateResponseDto statusUpdateResponseDto=applicationService.updateStatus(jobId,applicationId,principal,applicationStatusUpdateRequestDto);
+
+        return ResponseEntity.ok(statusUpdateResponseDto);
+    }
+
 
 
 
