@@ -29,7 +29,12 @@ public class SecurityConfig {
       return   http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth ->auth
-                .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",         // 🧠 JSON definition of your APIs (OpenAPI spec)
+                                "/swagger-ui/**",          // 📄 Swagger HTML + JS files
+                                "/swagger-ui.html",        // 🔗 Direct access to Swagger UI
+                                "/api/auth/**"             // (already included for login/register)
+                        ).permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/employer/**").hasAuthority("EMPLOYER")
                         .requestMatchers("/api/job-seeker/**").hasAuthority("JOB_SEEKER")
