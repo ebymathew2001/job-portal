@@ -3,6 +3,9 @@
 Job Portal System built using **Spring Boot**, **Spring Security (JWT)**, **JPA**, and **MySQL**.  
 This project supports multiple user roles, job posting, application tracking, and role-based access.
 
+
+🔧 The backend is fully implemented and functional.  
+🧩 A `frontend/` folder is included as a placeholder for a future React-based frontend (currently empty).
 ## 🧰 Tech Stack
 
 - Java 21
